@@ -44,6 +44,8 @@ constexpr auto qt_meta_stringdata_CLASSMainWindowENDCLASS = QtMocHelpers::string
     "on_pauseButton_clicked",
     "on_stopButton_clicked",
     "on_inverseFFTButton_clicked",
+    "on_FFTButton_clicked",
+    "on_FiltreButton_clicked",
     "updatePosition",
     "position",
     "setPosition",
@@ -51,9 +53,7 @@ constexpr auto qt_meta_stringdata_CLASSMainWindowENDCLASS = QtMocHelpers::string
     "updateDuration",
     "onMediaStatusChanged",
     "QMediaPlayer::MediaStatus",
-    "status",
-    "on_FFTButton_clicked",
-    "on_FiltreButton_clicked"
+    "status"
 );
 #else  // !QT_MOC_HAS_STRINGDATA
 #error "qtmochelpers.h not found or too old."
@@ -79,13 +79,13 @@ Q_CONSTINIT static const uint qt_meta_data_CLASSMainWindowENDCLASS[] = {
        4,    0,   88,    2, 0x08,    3 /* Private */,
        5,    0,   89,    2, 0x08,    4 /* Private */,
        6,    0,   90,    2, 0x08,    5 /* Private */,
-       7,    1,   91,    2, 0x08,    6 /* Private */,
-       9,    1,   94,    2, 0x08,    8 /* Private */,
-      10,    0,   97,    2, 0x08,   10 /* Private */,
-      11,    0,   98,    2, 0x08,   11 /* Private */,
-      12,    1,   99,    2, 0x08,   12 /* Private */,
-      15,    0,  102,    2, 0x08,   14 /* Private */,
-      16,    0,  103,    2, 0x08,   15 /* Private */,
+       7,    0,   91,    2, 0x08,    6 /* Private */,
+       8,    0,   92,    2, 0x08,    7 /* Private */,
+       9,    1,   93,    2, 0x08,    8 /* Private */,
+      11,    1,   96,    2, 0x08,   10 /* Private */,
+      12,    0,   99,    2, 0x08,   12 /* Private */,
+      13,    0,  100,    2, 0x08,   13 /* Private */,
+      14,    1,  101,    2, 0x08,   14 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
@@ -93,13 +93,13 @@ Q_CONSTINIT static const uint qt_meta_data_CLASSMainWindowENDCLASS[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void, QMetaType::LongLong,    8,
-    QMetaType::Void, QMetaType::Int,    8,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void, 0x80000000 | 13,   14,
+    QMetaType::Void, QMetaType::LongLong,   10,
+    QMetaType::Void, QMetaType::Int,   10,
     QMetaType::Void,
     QMetaType::Void,
+    QMetaType::Void, 0x80000000 | 15,   16,
 
        0        // eod
 };
@@ -123,6 +123,10 @@ Q_CONSTINIT const QMetaObject MainWindow::staticMetaObject = { {
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         // method 'on_inverseFFTButton_clicked'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        // method 'on_FFTButton_clicked'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        // method 'on_FiltreButton_clicked'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
         // method 'updatePosition'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         QtPrivate::TypeAndForceComplete<qint64, std::false_type>,
@@ -135,11 +139,7 @@ Q_CONSTINIT const QMetaObject MainWindow::staticMetaObject = { {
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         // method 'onMediaStatusChanged'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<QMediaPlayer::MediaStatus, std::false_type>,
-        // method 'on_FFTButton_clicked'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'on_FiltreButton_clicked'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>
+        QtPrivate::TypeAndForceComplete<QMediaPlayer::MediaStatus, std::false_type>
     >,
     nullptr
 } };
@@ -155,13 +155,13 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 2: _t->on_pauseButton_clicked(); break;
         case 3: _t->on_stopButton_clicked(); break;
         case 4: _t->on_inverseFFTButton_clicked(); break;
-        case 5: _t->updatePosition((*reinterpret_cast< std::add_pointer_t<qint64>>(_a[1]))); break;
-        case 6: _t->setPosition((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
-        case 7: _t->updateSliderPosition(); break;
-        case 8: _t->updateDuration(); break;
-        case 9: _t->onMediaStatusChanged((*reinterpret_cast< std::add_pointer_t<QMediaPlayer::MediaStatus>>(_a[1]))); break;
-        case 10: _t->on_FFTButton_clicked(); break;
-        case 11: _t->on_FiltreButton_clicked(); break;
+        case 5: _t->on_FFTButton_clicked(); break;
+        case 6: _t->on_FiltreButton_clicked(); break;
+        case 7: _t->updatePosition((*reinterpret_cast< std::add_pointer_t<qint64>>(_a[1]))); break;
+        case 8: _t->setPosition((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
+        case 9: _t->updateSliderPosition(); break;
+        case 10: _t->updateDuration(); break;
+        case 11: _t->onMediaStatusChanged((*reinterpret_cast< std::add_pointer_t<QMediaPlayer::MediaStatus>>(_a[1]))); break;
         default: ;
         }
     }

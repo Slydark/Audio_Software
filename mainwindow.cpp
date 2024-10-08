@@ -91,10 +91,6 @@ void MainWindow::on_openButton_clicked()
     int numChannels = audioFile.getNumChannels();
     int numSamplesPerChannel = audioFile.getNumSamplesPerChannel();
 
-    qDebug() << "Sample Rate:" << sampleRate;
-    qDebug() << "Number of Channels:" << numChannels;
-    qDebug() << "Number of Samples per Channel:" << numSamplesPerChannel;
-
     // Fusionner les canaux si nécessaire (par exemple, si c'est un fichier stéréo)
     std::vector<double> audioData(numSamplesPerChannel);
 
@@ -259,10 +255,10 @@ void MainWindow::performFFT(const std::vector<double>& audioData)
     }
 
     // Appliquer une fenêtre de Hamming
-    for (size_t i = 0; i < real.size(); ++i)
-    {
-        real[i] *= 0.54 - 0.46 * cos(2 * M_PI * i / (real.size() - 1));
-    }
+    // for (size_t i = 0; i < real.size(); ++i)
+    // {
+    //     real[i] *= 0.54 - 0.46 * cos(2 * M_PI * i / (real.size() - 1));
+    // }
 
     // Effectuer la FFT
     FFT(1, m, real.data(), imag.data());
@@ -274,31 +270,42 @@ void MainWindow::performFFT(const std::vector<double>& audioData)
         magnitude[i] = sqrt(real[i] * real[i] + imag[i] * imag[i]);
     }
 
+    // Enregistrer les parties réelles et imaginaires dans des variables membres
+    realPart = real;
+    imagPart = imag;
+
     // Affichage de la FFT avec QCustomPlot
     plotFFT(magnitude);
 }
 
-void MainWindow::performInverseFFT(const std::vector<double>& magnitude)
+void MainWindow::performInverseFFT()
 {
-    int m = log2(magnitude.size() * 2); // Nombre d'échantillons = 2^m
-    std::vector<double> real(magnitude.size() * 2, 0.0); // Partie réelle
-    std::vector<double> imag(magnitude.size() * 2, 0.0); // Partie imaginaire
+    int m = log2(realPart.size()); // Nombre d'échantillons = 2^m
 
-    // Remplir les parties réelles et imaginaires avec les données de magnitude
-    for (size_t i = 0; i < magnitude.size(); ++i)
-    {
-        real[i] = magnitude[i];
-    }
-
-    // Effectuer la FFT inverse
-    FFT(-1, m, real.data(), imag.data());
+    // Effectuer la FFT inverse avec les parties réelles et imaginaires enregistrées
+    FFT(-1, m, realPart.data(), imagPart.data());
 
     // Calculer les données audio inversées
-    std::vector<double> audioDataInverse(magnitude.size() * 2);
+    // std::vector<double> audioDataInverse(realPart.size());
+    // for (size_t i = 0; i < audioDataInverse.size(); ++i)
+    // {
+    //     audioDataInverse[i] = realPart[i];
+    // }
+
+    // Normaliser les amplitudes après la FFT inverse
+    for (auto& sample : realPart) {
+        sample /= realPart.size();
+    }
+
+    // Calculer les données audio inversées
+    std::vector<double> audioDataInverse(realPart.size());
     for (size_t i = 0; i < audioDataInverse.size(); ++i)
     {
-        audioDataInverse[i] = real[i];
+        audioDataInverse[i] = realPart[i];
     }
+
+    // Normaliser l'audio
+    normalizeAudio(audioDataInverse);
 
     // Affichage de la FFT inverse avec QCustomPlot
     plotInverseFFT(audioDataInverse);
@@ -311,7 +318,7 @@ void MainWindow::plotInverseFFT(const std::vector<double>& audioDataInverse)
     // Préparer les données FFT inverse pour l'affichage
     for (int i = 0; i < audioDataInverse.size(); ++i)
     {
-        x[i] = i; // Échantillon
+        x[i] = i / static_cast<double>(sampleRate); ; // Échantillon
         y[i] = audioDataInverse[i]; // Amplitude
     }
 
@@ -320,12 +327,13 @@ void MainWindow::plotInverseFFT(const std::vector<double>& audioDataInverse)
     ui->customPlot->graph(0)->setData(x, y);
 
     // Définir les axes
-    ui->customPlot->xAxis->setLabel("Sample");
+    ui->customPlot->xAxis->setLabel("time (s)");
     ui->customPlot->yAxis->setLabel("Amplitude");
 
     // Définir les plages des axes pour une vue plus restreinte
-    ui->customPlot->xAxis->setRange(0, audioDataInverse.size() / 2); // Plage des échantillons
-    ui->customPlot->yAxis->setRange(*std::min_element(audioDataInverse.begin(), audioDataInverse.end()), *std::max_element(audioDataInverse.begin(), audioDataInverse.end()) / 2); // Ajuster la plage d'amplitude
+    // ui->customPlot->xAxis->setRange(0, audioDataInverse.size() / 2); // Plage des échantillons
+    // ui->customPlot->yAxis->setRange(*std::min_element(audioDataInverse.begin(), audioDataInverse.end()), *std::max_element(audioDataInverse.begin(), audioDataInverse.end()) / 2); // Ajuster la plage d'amplitude
+    ui->customPlot->rescaleAxes();
 
     // Mettre à jour le graphique
     ui->customPlot->replot();
@@ -334,41 +342,41 @@ void MainWindow::plotInverseFFT(const std::vector<double>& audioDataInverse)
 void MainWindow::on_inverseFFTButton_clicked()
 {
     // Charger le fichier WAV
-    bool loaded = audioFile.load(fileName.toStdString());
-    if (!loaded)
-    {
-        qDebug() << "Erreur lors de l'ouverture du fichier WAV!";
-        return;
-    }
+    // bool loaded = audioFile.load(fileName.toStdString());
+    // if (!loaded)
+    // {
+    //     qDebug() << "Erreur lors de l'ouverture du fichier WAV!";
+    //     return;
+    // }
 
-    // Récupérer des informations sur le fichier
-    int sampleRate = audioFile.getSampleRate();
-    int numChannels = audioFile.getNumChannels();
-    int numSamplesPerChannel = audioFile.getNumSamplesPerChannel();
+    // // Récupérer des informations sur le fichier
+    // int sampleRate = audioFile.getSampleRate();
+    // int numChannels = audioFile.getNumChannels();
+    // int numSamplesPerChannel = audioFile.getNumSamplesPerChannel();
 
-    qDebug() << "Sample Rate:" << sampleRate;
-    qDebug() << "Number of Channels:" << numChannels;
-    qDebug() << "Number of Samples per Channel:" << numSamplesPerChannel;
+    // qDebug() << "Sample Rate:" << sampleRate;
+    // qDebug() << "Number of Channels:" << numChannels;
+    // qDebug() << "Number of Samples per Channel:" << numSamplesPerChannel;
 
-    // Fusionner les canaux si nécessaire (par exemple, si c'est un fichier stéréo)
-    std::vector<double> audioData(numSamplesPerChannel);
+    // // Fusionner les canaux si nécessaire (par exemple, si c'est un fichier stéréo)
+    // std::vector<double> audioData(numSamplesPerChannel);
 
-    if (numChannels == 1)
-    {
-        // Mono
-        audioData = audioFile.samples[0];  // Utiliser directement les données si mono
-    }
-    else
-    {
-        // Stéréo : fusionner les canaux (par exemple, prendre la moyenne des deux canaux)
-        for (int i = 0; i < numSamplesPerChannel; ++i)
-        {
-            audioData[i] = (audioFile.samples[0][i] + audioFile.samples[1][i]) / 2.0;
-        }
-    }
+    // if (numChannels == 1)
+    // {
+    //     // Mono
+    //     audioData = audioFile.samples[0];  // Utiliser directement les données si mono
+    // }
+    // else
+    // {
+    //     // Stéréo : fusionner les canaux (par exemple, prendre la moyenne des deux canaux)
+    //     for (int i = 0; i < numSamplesPerChannel; ++i)
+    //     {
+    //         audioData[i] = (audioFile.samples[0][i] + audioFile.samples[1][i]) / 2.0;
+    //     }
+    // }
 
     // Effectuer la FFT inverse sur les données audio
-    performInverseFFT(audioData);
+    performInverseFFT();
 }
 
 void MainWindow::plotAudioSignal(const std::vector<double>& audioData, double durationInSeconds)
@@ -406,11 +414,14 @@ void MainWindow::plotAudioSignal(const std::vector<double>& audioData, double du
 }
 
 // Fonction pour appliquer un filtre passe-bas Butterworth d'ordre 3
-void MainWindow::butterworthLowPassFilter(std::vector<double>& signal, double sampleRate, double cutoffFrequency)
+void MainWindow::butterworthLowPassFilter(std::vector<double>& signal, double sampleRate)
 {
     // Get the order filter
     order = ui->comboBoxOrdreFiltre->currentIndex() + 1;
-    qDebug() << order;
+
+    // Get the cut off frequency
+    cutoffFrequency = ui->lineEditFrequenceCoupure->text().toDouble();
+    qDebug() << cutoffFrequency;
 
     double wc = tan(M_PI * cutoffFrequency / sampleRate);
     double k1 = wc * wc;
@@ -489,10 +500,6 @@ void MainWindow::on_FiltreButton_clicked()
     int numChannels = audioFile.getNumChannels();
     int numSamplesPerChannel = audioFile.getNumSamplesPerChannel();
 
-    qDebug() << "Sample Rate:" << sampleRate;
-    qDebug() << "Number of Channels:" << numChannels;
-    qDebug() << "Number of Samples per Channel:" << numSamplesPerChannel;
-
     // Fusionner les canaux si nécessaire (par exemple, si c'est un fichier stéréo)
     std::vector<double> audioData(numSamplesPerChannel);
 
@@ -524,9 +531,20 @@ void MainWindow::on_FiltreButton_clicked()
 
 
     // Appliquer le filtre passe-bas Butterworth
-    butterworthLowPassFilter(audioData, sampleRate, 1000.0); // 1000 Hz est la fréquence de coupure
+    butterworthLowPassFilter(audioData, sampleRate);
 
     // Afficher le signal audio avec customplot
     plotAudioSignal(audioData, durationInSeconds);
 }
 
+void MainWindow::normalizeAudio(std::vector<double>& audioData)
+{
+    // Trouver l'amplitude maximale dans le signal audio
+    double maxAmplitude = *std::max_element(audioData.begin(), audioData.end());
+
+    // Diviser chaque échantillon par l'amplitude maximale
+    for (auto& sample : audioData)
+    {
+        sample /= maxAmplitude;
+    }
+}
