@@ -413,7 +413,6 @@ void MainWindow::plotAudioSignal(const std::vector<double>& audioData, double du
     ui->waveSignalPlot->replot();
 }
 
-// Fonction pour appliquer un filtre passe-bas Butterworth d'ordre 3
 void MainWindow::butterworthLowPassFilter(std::vector<double>& signal, double sampleRate)
 {
     // Get the order filter
@@ -421,7 +420,6 @@ void MainWindow::butterworthLowPassFilter(std::vector<double>& signal, double sa
 
     // Get the cut off frequency
     cutoffFrequency = ui->lineEditFrequenceCoupure->text().toDouble();
-    qDebug() << cutoffFrequency;
 
     double wc = tan(M_PI * cutoffFrequency / sampleRate);
     double k1 = wc * wc;
@@ -533,6 +531,9 @@ void MainWindow::on_FiltreButton_clicked()
     // Appliquer le filtre passe-bas Butterworth
     butterworthLowPassFilter(audioData, sampleRate);
 
+    // Sauvegarder le signal audio filtré dans un nouveau fichier WAV
+    saveToWavFile("filtered_audio.wav", audioData, sampleRate);
+
     // Afficher le signal audio avec customplot
     plotAudioSignal(audioData, durationInSeconds);
 }
@@ -547,4 +548,67 @@ void MainWindow::normalizeAudio(std::vector<double>& audioData)
     {
         sample /= maxAmplitude;
     }
+}
+
+// void MainWindow::saveToWavFile(const QString& fileName, const std::vector<double>& audioData, int sampleRate, int numChannels)
+// {
+//     QFile file(fileName);
+//     if (!file.open(QIODevice::WriteOnly))
+//     {
+//         qDebug() << "Impossible d'ouvrir le fichier pour écriture!";
+//         return;
+//     }
+
+//     QDataStream out(&file);
+
+//     // Écrire l'en-tête WAV
+//     out.writeRawData("RIFF", 4);
+//     quint32 fileSize = 36 + audioData.size() * 2;
+//     out.writeBytes(reinterpret_cast<const char*>(&fileSize), sizeof(fileSize));
+//     out.writeRawData("WAVE", 4);
+//     out.writeRawData("fmt ", 4);
+//     quint32 fmtSize = 16;
+//     out.writeBytes(reinterpret_cast<const char*>(&fmtSize), sizeof(fmtSize));
+//     quint16 audioFormat = 1;
+//     out.writeBytes(reinterpret_cast<const char*>(&audioFormat), sizeof(audioFormat));
+//     out.writeBytes(reinterpret_cast<const char*>(&numChannels), sizeof(numChannels));
+//     out.writeBytes(reinterpret_cast<const char*>(&sampleRate), sizeof(sampleRate));
+//     quint32 byteRate = sampleRate * numChannels * 2;
+//     out.writeBytes(reinterpret_cast<const char*>(&byteRate), sizeof(byteRate));
+//     quint16 blockAlign = numChannels * 2;
+//     out.writeBytes(reinterpret_cast<const char*>(&blockAlign), sizeof(blockAlign));
+//     quint16 bitsPerSample = 16;
+//     out.writeBytes(reinterpret_cast<const char*>(&bitsPerSample), sizeof(bitsPerSample));
+//     out.writeRawData("data", 4);
+//     quint32 dataSize = audioData.size() * 2;
+//     out.writeBytes(reinterpret_cast<const char*>(&dataSize), sizeof(dataSize));
+
+//     // Écrire les données audio
+//     for (auto sample : audioData)
+//     {
+//         qint16 intSample = static_cast<qint16>(sample * 32767);
+//         out.writeBytes(reinterpret_cast<const char*>(&intSample), sizeof(intSample));
+//     }
+
+//     file.close();
+
+
+
+// }
+
+
+void MainWindow::saveToWavFile(const QString &filePath, const std::vector<double> &data, int sampleRate)
+{
+    audioFile.setNumChannels(1);
+    audioFile.setSampleRate(sampleRate);
+    audioFile.samples[0].resize(data.size());
+    for (int i = 0; i < data.size(); ++i) {
+        // Assurez-vous que les valeurs sont comprises entre -1 et 1
+        audioFile.samples[0][i] = std::max(-1.0, std::min(1.0, data[i]));
+    }
+    audioFile.save(filePath.toStdString());
+
+        // Message pour la sauvegarde de l'audio
+        msgBox.setText("Un fichier audio viens d'être sauvegarder.");
+        msgBox.exec();
 }

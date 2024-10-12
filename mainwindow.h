@@ -7,7 +7,9 @@
 #include <QMediaPlayer>
 #include <QAudioOutput>
 #include <QAudioBuffer>
+#include <QDataStream>
 #include <QTimer>
+#include <QMessageBox>
 #include <QDebug>
 #include <fstream>
 #include <chrono>
@@ -36,6 +38,7 @@ public:
     void plotAudioSignal(const std::vector<double>& audioData, double durationInSeconds);
     void butterworthLowPassFilter(std::vector<double>& signal, double sampleRate);
     void normalizeAudio(std::vector<double>& audioData);
+    void saveToWavFile(const QString& fileName, const std::vector<double>& audioData, int sampleRate);
 
 private slots:
     void on_openButton_clicked();
@@ -58,6 +61,7 @@ private:
     QAudioOutput *audioOutPut;
     QTimer *timer;
     QString fileName;
+    QMessageBox msgBox;
     std::vector<double> audioData; // Déclaration de la variable membre audioData
     AudioFile<double> audioFile; // Déclaration de la variable AudioFile
     double durationInSeconds; // Déclaration de la variable de la durée du piste audio
